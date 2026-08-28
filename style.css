@@ -1,0 +1,298 @@
+/* =====================================================
+   XR Slingshot Game - Global Styles
+   Orientation Screen with Glassmorphism Design
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap');
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --clr-bg-deep:    #0a0a1a;
+  --clr-bg-mid:     #0e1128;
+  --clr-accent-1:   #7c3aed;
+  --clr-accent-2:   #06b6d4;
+  --clr-accent-glow:#a78bfa;
+  --clr-text:       #e2e8f0;
+  --clr-muted:      #94a3b8;
+  --glass-bg:       rgba(255, 255, 255, 0.05);
+  --glass-border:   rgba(255, 255, 255, 0.12);
+  --glass-blur:     20px;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: 'Outfit', sans-serif;
+  background: var(--clr-bg-deep);
+  color: var(--clr-text);
+}
+
+/* ---- Animated background ---- */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 40%, rgba(124, 58, 237, 0.25) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 80% at 80% 70%, rgba(6, 182, 212, 0.18) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 100% at 50% 0%, rgba(14, 17, 40, 1) 0%, transparent 100%);
+  z-index: 0;
+  animation: bgPulse 8s ease-in-out infinite alternate;
+}
+
+@keyframes bgPulse {
+  0%   { opacity: 0.8; }
+  100% { opacity: 1; }
+}
+
+/* ---- Orientation screen always on top ---- */
+#orientation-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;    /* above A-Frame canvas which is z-index:1 */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+/* Floating particles */
+.particles {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0;
+  animation: floatUp linear infinite;
+}
+
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) scale(0); opacity: 0; }
+  10%  { opacity: 0.6; }
+  90%  { opacity: 0.3; }
+  100% { transform: translateY(-10vh) scale(1.2); opacity: 0; }
+}
+
+/* Game logo / title */
+.game-title-wrap {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.game-subtitle {
+  font-size: 0.85rem;
+  font-weight: 300;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--clr-accent-2);
+  margin-bottom: 0.5rem;
+  animation: fadeDown 0.8s ease both;
+}
+
+.game-title {
+  font-size: clamp(3rem, 8vw, 6rem);
+  font-weight: 900;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 0%, var(--clr-accent-glow) 50%, var(--clr-accent-2) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: none;
+  filter: drop-shadow(0 0 40px rgba(167, 139, 250, 0.5));
+  animation: fadeDown 0.8s ease 0.1s both;
+}
+
+.game-tagline {
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  font-weight: 300;
+  color: var(--clr-muted);
+  letter-spacing: 0.05em;
+  animation: fadeDown 0.8s ease 0.2s both;
+}
+
+/* Glass card */
+.glass-card {
+  position: relative;
+  z-index: 1;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-radius: 24px;
+  padding: 2rem 2.5rem;
+  max-width: 520px;
+  width: 100%;
+  animation: fadeUp 0.8s ease 0.3s both;
+}
+
+.instructions-title {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--clr-accent-2);
+  margin-bottom: 1.25rem;
+}
+
+.instructions-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.instructions-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  font-size: 0.95rem;
+  color: var(--clr-text);
+  line-height: 1.5;
+}
+
+.step-badge {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--clr-accent-1), var(--clr-accent-2));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(124, 58, 237, 0.5);
+}
+
+/* Ball types legend */
+.ball-types {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  gap: 1.25rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  animation: fadeUp 0.8s ease 0.4s both;
+}
+
+.ball-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  background: var(--glass-bg);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(10px);
+  padding: 0.45rem 1rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--clr-muted);
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.ball-chip:hover {
+  border-color: var(--clr-accent-glow);
+  color: var(--clr-text);
+}
+
+.ball-dot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  box-shadow: 0 0 8px currentColor;
+}
+
+/* Enter VR Button */
+.btn-enter-vr {
+  position: relative;
+  z-index: 1;
+  padding: 1rem 3rem;
+  border: none;
+  border-radius: 999px;
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--clr-accent-1) 0%, var(--clr-accent-2) 100%);
+  color: #fff;
+  box-shadow:
+    0 0 30px rgba(124, 58, 237, 0.5),
+    0 0 60px rgba(6, 182, 212, 0.2);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  animation: fadeUp 0.8s ease 0.5s both, pulseShadow 2.5s ease-in-out infinite 1.3s;
+}
+
+.btn-enter-vr:hover {
+  transform: translateY(-3px) scale(1.04);
+  box-shadow:
+    0 0 50px rgba(124, 58, 237, 0.7),
+    0 0 100px rgba(6, 182, 212, 0.35);
+}
+
+.btn-enter-vr:active {
+  transform: scale(0.97);
+}
+
+.btn-enter-vr .btn-icon {
+  margin-right: 0.5rem;
+}
+
+/* WebXR not supported message */
+#vr-not-supported {
+  display: none;
+  position: relative;
+  z-index: 1;
+  color: #f87171;
+  font-size: 0.85rem;
+  text-align: center;
+  max-width: 340px;
+  line-height: 1.6;
+  animation: fadeUp 0.5s ease both;
+}
+
+/* ==============================
+   KEYFRAMES
+   ============================== */
+@keyframes fadeDown {
+  from { opacity: 0; transform: translateY(-20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pulseShadow {
+  0%, 100% { box-shadow: 0 0 30px rgba(124,58,237,0.5), 0 0 60px rgba(6,182,212,0.2); }
+  50%       { box-shadow: 0 0 50px rgba(124,58,237,0.8), 0 0 90px rgba(6,182,212,0.4); }
+}
+
+/* ---- A-Frame scene hidden until VR ---- */
+#vr-scene {
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+}
+
+#vr-scene.active {
+  display: block;
+}

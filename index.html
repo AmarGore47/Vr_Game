@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>XR Slingshot – Angry Birds VR Island</title>
+  <meta name="description" content="Angry Birds VR Island World with Hand Tracking for Meta Quest 3S"/>
+  <link rel="stylesheet" href="/style.css"/>
+  <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+</head>
+<body>
+
+<!-- ============================================================
+     ORIENTATION / START SCREEN
+     ============================================================ -->
+<div id="orientation-screen">
+  <div class="particles" id="particles-container"></div>
+
+  <div class="game-title-wrap">
+    <p class="game-subtitle">WebXR · Hand Tracking · Meta Quest 3S</p>
+    <h1 class="game-title">XR SLINGSHOT</h1>
+    <p class="game-tagline">Angry Birds Island · Realistic 3D World</p>
+  </div>
+
+  <div class="glass-card">
+    <p class="instructions-title">How to Play</p>
+    <ul class="instructions-list">
+      <li><span class="step-badge">1</span><span>Enable <strong>Hand Tracking</strong> in Quest Settings → Hands & Controllers.</span></li>
+      <li><span class="step-badge">2</span><span>Tap <strong>Enter VR</strong> below and put on your headset.</span></li>
+      <li><span class="step-badge">3</span><span>Reach out and <strong>pinch</strong> the 3D Angry Bird in the slingshot.</span></li>
+      <li><span class="step-badge">4</span><span><strong>Pull back</strong> — watch the yellow arc guide appear — then <strong>release</strong>!</span></li>
+      <li><span class="step-badge">5</span><span>Knock down the <strong>Bad Piggies</strong> 🐷 & <strong>TNT Barrels</strong> 💣!</span></li>
+    </ul>
+  </div>
+
+  <div class="ball-types">
+    <div class="ball-chip"><span class="ball-dot" style="background:#ef4444;color:#ef4444;"></span><span>🔴 Red Bird</span></div>
+    <div class="ball-chip"><span class="ball-dot" style="background:#facc15;color:#facc15;"></span><span>🟡 Chuck</span></div>
+    <div class="ball-chip"><span class="ball-dot" style="background:#1e293b;color:#1e293b;"></span><span>💣 Bomb</span></div>
+    <div class="ball-chip"><span class="ball-dot" style="background:#991b1b;color:#991b1b;"></span><span>🟤 Terence</span></div>
+  </div>
+
+  <button id="btn-enter-vr" class="btn-enter-vr">
+    <span class="btn-icon">🥽</span> Enter VR
+  </button>
+  <p id="vr-not-supported">⚠️ WebXR not supported. Open this page in the Meta Quest Browser.</p>
+</div>
+
+
+<!-- ============================================================
+     A-FRAME VR SCENE
+     ============================================================ -->
+<a-scene
+  id="main-scene"
+  renderer="antialias:true; colorManagement:true; physicallyCorrectLights:true;"
+  shadow="type:pcfsoft"
+  fog="type:exponential; color:#bae6fd; density:0.015;"
+  webxr="requiredFeatures:local-floor; optionalFeatures:hand-tracking,bounded-floor;"
+  vr-mode-ui="enabled:false"
+  style="position:fixed;inset:0;z-index:1;"
+>
+
+  <!-- ── Sky ── -->
+  <a-sky color="#38bdf8"></a-sky>
+
+  <!-- ── Golden Sun & Sunburst Ring ── -->
+  <a-sphere position="-22 26 -52" radius="5.0"
+            material="color:#fef08a; emissive:#facc15; emissiveIntensity:1.2; shader:flat;"></a-sphere>
+  <a-sphere position="-22 26 -52" radius="8.0"
+            material="color:#fde047; opacity:0.22; transparent:true; shader:flat;"></a-sphere>
+
+  <!-- ── Realistic Vivid Lighting ── -->
+  <a-entity light="type:ambient;       color:#fff7ed; intensity:0.65;"></a-entity>
+  <a-entity light="type:directional;   color:#fef08a; intensity:1.6; castShadow:true; shadowMapWidth:2048; shadowMapHeight:2048;" position="-10 16 -6"></a-entity>
+  <a-entity light="type:hemisphere;    color:#38bdf8; groundColor:#16a34a; intensity:0.55;"></a-entity>
+  <a-entity light="type:directional;   color:#bae6fd; intensity:0.35;" position="4 6 8"></a-entity>
+
+  <!-- ── Fluffy 3D Cloud Clusters ── -->
+  <a-entity position="-14 13 -25">
+    <a-sphere radius="2.6" material="color:#ffffff; opacity:0.92; transparent:true; shader:flat;"></a-sphere>
+    <a-sphere radius="2.0" position="2.8 0.4 0" material="color:#f0f9ff; opacity:0.88; transparent:true; shader:flat;"></a-sphere>
+    <a-sphere radius="1.6" position="-2.4 0.3 0" material="color:#ffffff; opacity:0.82; transparent:true; shader:flat;"></a-sphere>
+  </a-entity>
+
+  <a-entity position="18 15 -32">
+    <a-sphere radius="3.0" material="color:#ffffff; opacity:0.90; transparent:true; shader:flat;"></a-sphere>
+    <a-sphere radius="2.3" position="3.4 0.5 0" material="color:#f0f9ff; opacity:0.85; transparent:true; shader:flat;"></a-sphere>
+  </a-entity>
+
+  <!-- ── Distant Mountain Peaks ── -->
+  <a-cone position="-26 0 -48" radius-bottom="16" radius-top="0.4" height="18" color="#64748b" shadow="cast:false;"></a-cone>
+  <a-cone position="-10 0 -52" radius-bottom="12" radius-top="0.4" height="14" color="#475569" shadow="cast:false;"></a-cone>
+  <a-cone position="14  0 -48" radius-bottom="16" radius-top="0.5" height="20" color="#475569" shadow="cast:false;"></a-cone>
+  <a-cone position="28  0 -44" radius-bottom="11" radius-top="0.2" height="12" color="#64748b" shadow="cast:false;"></a-cone>
+
+  <a-cone position="-26 14.5 -48" radius-bottom="2.8" radius-top="0.1" height="4.5" color="#f8fafc" material="shader:flat;"></a-cone>
+  <a-cone position="14  15.5 -48" radius-bottom="3.2" radius-top="0.2" height="5.2" color="#f8fafc" material="shader:flat;"></a-cone>
+
+  <!-- ── Ocean Water & Sandy Beach ── -->
+  <a-plane position="0 -0.1 0" rotation="-90 0 0" width="320" height="320"
+           color="#0284c7" material="roughness:0.1; metalness:0.4; opacity:0.92; transparent:true;"></a-plane>
+
+  <a-cylinder position="0 0.01 0" radius="45" height="0.08" color="#fef08a" material="roughness:0.9;"></a-cylinder>
+  <a-cylinder id="ground" position="0 0.05 0" radius="40" height="0.1" color="#22c55e" material="roughness:0.85;" shadow="receive:true"></a-cylinder>
+
+  <a-plane position="0 0.11 -5" rotation="-90 0 0" width="2.0" height="18"
+           material="color:#b45309; opacity:0.6; transparent:true; shader:flat;"></a-plane>
+
+  <!-- ── ASPHALT ROAD ── -->
+  <a-plane position="0 0.11 -12" rotation="-90 0 0" width="80" height="3.2" color="#334155" material="roughness:0.9;"></a-plane>
+
+  <!-- Yellow Lane Stripes -->
+  <a-entity position="0 0.12 -12">
+    <a-plane position="-25 0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+    <a-plane position="-15 0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+    <a-plane position="-5  0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+    <a-plane position="5   0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+    <a-plane position="15  0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+    <a-plane position="25  0 0" rotation="-90 0 0" width="3" height="0.2" color="#facc15" material="shader:flat;"></a-plane>
+  </a-entity>
+
+  <!-- ── VILLAGE HOUSES ── -->
+  <!-- Cottage 1 -->
+  <a-entity position="-11 0.1 -6" rotation="0 35 0">
+    <a-box color="#fef3c7" width="2.4" height="1.8" depth="2.0" position="0 0.9 0" shadow="cast:true;"></a-box>
+    <a-cone color="#dc2626" radius-bottom="2.0" radius-top="0.1" height="1.4" position="0 2.4 0" rotation="0 45 0" shadow="cast:true;"></a-cone>
+    <a-plane color="#78350f" width="0.6" height="1.1" position="0 0.55 1.01"></a-plane>
+    <a-plane color="#38bdf8" width="0.5" height="0.5" position="0.7 1.1 1.01" material="emissive:#38bdf8; emissiveIntensity:0.4;"></a-plane>
+    <a-cylinder color="#64748b" radius="0.15" height="0.8" position="-0.7 2.4 -0.3"></a-cylinder>
+  </a-entity>
+
+  <!-- Cottage 2 -->
+  <a-entity position="12 0.1 -8" rotation="0 -25 0">
+    <a-box color="#e2e8f0" width="3.0" height="2.0" depth="2.2" position="0 1.0 0" shadow="cast:true;"></a-box>
+    <a-cone color="#b45309" radius-bottom="2.5" radius-top="0.1" height="1.5" position="0 2.75 0" rotation="0 45 0" shadow="cast:true;"></a-cone>
+    <a-plane color="#451a03" width="0.7" height="1.2" position="0 0.6 1.11"></a-plane>
+    <a-plane color="#fef08a" width="0.6" height="0.6" position="-0.8 1.2 1.11" material="emissive:#facc15; emissiveIntensity:0.6;"></a-plane>
+    <a-plane color="#fef08a" width="0.6" height="0.6" position="0.8 1.2 1.11" material="emissive:#facc15; emissiveIntensity:0.6;"></a-plane>
+  </a-entity>
+
+  <!-- ── TROPICAL COCONUT PALM TREES ── -->
+  <a-entity position="-14 0.1 2">
+    <a-cylinder color="#78350f" radius="0.15" height="3.2" position="0 1.6 0" rotation="5 0 -10" shadow="cast:true;"></a-cylinder>
+    <a-cone color="#16a34a" radius-bottom="1.8" radius-top="0.1" height="0.6" position="-0.2 3.3 0" rotation="10 0 0" shadow="cast:true;"></a-cone>
+    <a-cone color="#22c55e" radius-bottom="1.8" radius-top="0.1" height="0.6" position="-0.2 3.3 0" rotation="-10 90 0" shadow="cast:true;"></a-cone>
+    <a-sphere color="#451a03" radius="0.12" position="-0.1 3.0 0.15"></a-sphere>
+    <a-sphere color="#451a03" radius="0.12" position="-0.25 2.95 -0.1"></a-sphere>
+  </a-entity>
+
+  <a-entity position="15 0.1 1">
+    <a-cylinder color="#78350f" radius="0.16" height="3.5" position="0 1.75 0" rotation="-5 0 12" shadow="cast:true;"></a-cylinder>
+    <a-cone color="#16a34a" radius-bottom="2.0" radius-top="0.1" height="0.6" position="0.2 3.6 0" shadow="cast:true;"></a-cone>
+    <a-cone color="#22c55e" radius-bottom="2.0" radius-top="0.1" height="0.6" position="0.2 3.6 0" rotation="0 90 0" shadow="cast:true;"></a-cone>
+    <a-sphere color="#451a03" radius="0.13" position="0.15 3.3 0.1"></a-sphere>
+    <a-sphere color="#451a03" radius="0.13" position="0.25 3.25 -0.15"></a-sphere>
+  </a-entity>
+
+  <!-- ── FARM ANIMALS ── -->
+  <a-entity position="8 0.1 -3.5" rotation="0 -40 0">
+    <a-box color="#f8fafc" width="1.0" height="0.6" depth="0.5" position="0 0.45 0" shadow="cast:true;"></a-box>
+    <a-box color="#0f172a" width="0.3" height="0.3" depth="0.52" position="-0.2 0.45 0"></a-box>
+    <a-box color="#0f172a" width="0.25" height="0.25" depth="0.52" position="0.25 0.5 0"></a-box>
+    <a-box color="#f8fafc" width="0.3" height="0.3" depth="0.3" position="0.55 0.7 0"></a-box>
+    <a-box color="#f472b6" width="0.15" height="0.15" depth="0.25" position="0.7 0.62 0"></a-box>
+    <a-cylinder color="#0f172a" radius="0.05" height="0.3" position="-0.35 0.15 0.18"></a-cylinder>
+    <a-cylinder color="#0f172a" radius="0.05" height="0.3" position="0.35 0.15 0.18"></a-cylinder>
+    <a-cylinder color="#0f172a" radius="0.05" height="0.3" position="-0.35 0.15 -0.18"></a-cylinder>
+    <a-cylinder color="#0f172a" radius="0.05" height="0.3" position="0.35 0.15 -0.18"></a-cylinder>
+  </a-entity>
+
+  <a-entity position="-7 0.1 -4" rotation="0 50 0">
+    <a-sphere color="#f8fafc" radius="0.35" position="0 0.35 0"></a-sphere>
+    <a-sphere color="#334155" radius="0.15" position="0.3 0.4 0"></a-sphere>
+  </a-entity>
+
+  <!-- ── Cute Cartoon Mushrooms & Sign ── -->
+  <a-entity position="-2.4 0.1 -1.2">
+    <a-cylinder color="#fef08a" radius="0.05" height="0.16" position="0 0.08 0"></a-cylinder>
+    <a-sphere color="#ef4444" radius="0.14" position="0 0.18 0" scale="1 0.6 1"></a-sphere>
+  </a-entity>
+
+  <a-entity position="2.2 0.1 -1.6">
+    <a-cylinder color="#fef08a" radius="0.06" height="0.18" position="0 0.09 0"></a-cylinder>
+    <a-sphere color="#ef4444" radius="0.16" position="0 0.20 0" scale="1 0.6 1"></a-sphere>
+  </a-entity>
+
+  <a-entity position="-1.8 0.1 -2.2" rotation="0 25 0">
+    <a-cylinder color="#78350f" radius="0.04" height="0.9" position="0 0.45 0"></a-cylinder>
+    <a-box color="#d97706" width="0.8" height="0.35" depth="0.05" position="0 0.7 0"></a-box>
+    <a-text value="PIGGY ISLAND" align="center" color="#ffffff" width="1.8" position="0 0.7 0.03"></a-text>
+  </a-entity>
+
+  <!-- ── Slingshot Pedestal & Stand ── -->
+  <a-cylinder position="-0.20 0.15 -0.92" radius="0.35" height="0.30" color="#64748b" material="roughness:0.8;" shadow="cast:true; receive:true;"></a-cylinder>
+  <a-cylinder position="-0.20 0.32 -0.92" radius="0.38" height="0.06" color="#38bdf8" material="emissive:#0284c7; emissiveIntensity:0.5; shader:flat;"></a-cylinder>
+
+  <!-- ── Camera Rig ── -->
+  <a-entity id="camera-rig" position="0 0 0">
+    <a-camera id="main-camera" look-controls="enabled:false" wasd-controls="enabled:false"></a-camera>
+    <a-entity id="left-hand"  hand-tracking-controls="hand:left;  modelStyle:mesh; modelColor:#c8b8ff;"></a-entity>
+    <a-entity id="right-hand" hand-tracking-controls="hand:right; modelStyle:mesh; modelColor:#c8b8ff;"></a-entity>
+  </a-entity>
+
+  <!-- ── 3D Slingshot Model ── -->
+  <a-entity id="slingshot" position="-0.20 0.88 -0.92">
+    <!-- Handle -->
+    <a-cylinder color="#78350f" radius="0.034" height="0.50" position="0 -0.16 0" shadow="cast:true;" material="roughness:0.85;"></a-cylinder>
+    <a-cylinder color="#b45309" radius="0.040" height="0.18" position="0 -0.08 0" material="roughness:0.9;"></a-cylinder>
+    <!-- Fork connector -->
+    <a-sphere color="#92400e" radius="0.045" position="0 0.09 0" material="roughness:0.8;"></a-sphere>
+    <!-- Fork arms -->
+    <a-cylinder color="#78350f" radius="0.028" height="0.42" position="-0.095 0.25 0" rotation="0 0 20" shadow="cast:true;" material="roughness:0.85;"></a-cylinder>
+    <a-cylinder color="#78350f" radius="0.028" height="0.42" position=" 0.095 0.25 0" rotation="0 0 -20" shadow="cast:true;" material="roughness:0.85;"></a-cylinder>
+    <!-- Fork tip knobs -->
+    <a-sphere color="#451a03" radius="0.042" position="-0.14 0.44 0" material="roughness:0.9;"></a-sphere>
+    <a-sphere color="#451a03" radius="0.042" position=" 0.14 0.44 0" material="roughness:0.9;"></a-sphere>
+    <!-- Elastic bands -->
+    <a-cylinder id="band-left"  color="#2a1a4e" radius="0.008" height="0.26" position="-0.07 0.30 0" rotation="0 0 45"  material="emissive:#5a0090; emissiveIntensity:0.5;"></a-cylinder>
+    <a-cylinder id="band-right" color="#2a1a4e" radius="0.008" height="0.26" position=" 0.07 0.30 0" rotation="0 0 -45" material="emissive:#5a0090; emissiveIntensity:0.5;"></a-cylinder>
+    <!-- Ball anchor point -->
+    <a-sphere id="ball-anchor" visible="false" radius="0.008" position="0 0.35 0"></a-sphere>
+  </a-entity>
+
+  <!-- ── 3D Angry Bird Container Entity ── -->
+  <a-entity id="bird-container" position="-0.20 1.23 -0.92"></a-entity>
+
+  <!-- ── Target Zone Platform ── -->
+  <a-entity id="target-zone" position="0 0 -7.5"></a-entity>
+
+  <!-- ── HUD Display ── -->
+  <a-entity id="hud-score" position="0 2.25 -1.8"
+    text="value:Score: 0  |  Birds: 5; align:center; color:white; width:3.4; wrapCount:35; font:mozillavr;">
+  </a-entity>
+
+  <a-entity id="hud-type" position="-0.60 1.92 -1.6"
+    text="value:🔴 Red Bird; color:#ef4444; width:2.2; align:left; wrapCount:20;">
+  </a-entity>
+
+  <!-- ── Round Complete Banner ── -->
+  <a-entity id="round-banner" visible="false" position="0 1.75 -2.0">
+    <a-plane width="3.4" height="1.1" color="#7c3aed" opacity="0.94"
+             material="emissive:#5b21b6; emissiveIntensity:0.4;"></a-plane>
+    <a-text id="banner-text" value="🎉 Level Clear!" align="center" color="white"
+            width="6" position="0 0.15 0.01"></a-text>
+    <a-text value="Preparing next level…" align="center" color="#c4b5fd"
+            width="4.2" position="0 -0.22 0.01"></a-text>
+  </a-entity>
+
+  <!-- ── Game Controller Entity ── -->
+  <a-entity id="game-controller" angry-birds-game></a-entity>
+
+</a-scene>
+
+<!-- Scripts -->
+<script type="module" src="/src/game.js"></script>
+<script type="module" src="/src/main.js"></script>
+
+</body>
+</html>
