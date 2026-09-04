@@ -120,6 +120,7 @@ AFRAME.registerComponent('angry-birds-game', {
 
   init() {
     this.state     = 'idle';   // idle | grabbed | flying | reloading | roundDone
+    this.mode      = 'vr';     // vr | mobile | desktop
     this.score     = 0;
     this.ballsLeft = CFG.BALLS_ROUND;
     this.ballIdx   = 0;
@@ -139,6 +140,11 @@ AFRAME.registerComponent('angry-birds-game', {
     this.pinchR    = false;
     this.pinchL    = false;
     this.activeHnd = null;
+
+    this.isPointerDragging = false;
+    this.raycaster = null;
+    this.mouseNDC  = null;
+    this.dragPlane = null;
 
     this.V = {
       hand:   new THREE.Vector3(),
@@ -165,6 +171,7 @@ AFRAME.registerComponent('angry-birds-game', {
     this.$zone          = document.getElementById('target-zone');
 
     this.attachHandEvents();
+    this.attachPointerEvents();
     this.buildCurrentBirdModel();
     this.snapToAnchor();
     this.spawnStructure();
@@ -180,7 +187,29 @@ AFRAME.registerComponent('angry-birds-game', {
     this.initSkyBirds();
     this.initAmbientPollen();
 
-    console.log('[AngryBirds VR] 🔊 Audio & 6 Levels Engine Ready!');
+    console.log('[AngryBirds VR] 🔊 Cross-Platform Audio & 6 Levels Engine Ready!');
+  },
+
+  setMode(mode) {
+    this.mode = mode; // 'vr' | 'mobile' | 'desktop'
+    const camRig  = document.getElementById('camera-rig');
+    const mainCam = document.getElementById('main-camera');
+
+    if (mode === 'mobile' || mode === 'desktop') {
+      if (camRig) camRig.setAttribute('position', '-0.20 1.35 0.35');
+      if (mainCam) mainCam.setAttribute('rotation', '-8 0 0');
+    } else {
+      if (camRig) camRig.setAttribute('position', '0 0 0');
+      if (mainCam) mainCam.setAttribute('rotation', '0 0 0');
+    }
+  },
+
+  restartLevel() {
+    this.respawnStructure();
+    this.buildCurrentBirdModel();
+    this.snapToAnchor();
+    this.updateHUD();
+    this.state = 'idle';
   },
 
   attachHandEvents() {
@@ -199,6 +228,95 @@ AFRAME.registerComponent('angry-birds-game', {
     };
     bind('right-hand', true);
     bind('left-hand',  false);
+  },
+
+  attachPointerEvents() {
+    this.raycaster = new THREE.Raycaster();
+    this.mouseNDC  = new THREE.Vector2();
+    this.dragPlane = new THREE.Plane();
+
+    const getNDC = (e) => {
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      this.mouseNDC.x = (x / window.innerWidth) * 2 - 1;
+      this.mouseNDC.y = -(y / window.innerHeight) * 2 + 1;
+    };
+
+    const onDown = (e) => {
+      if (this.mode === 'vr') return; // VR mode uses hand tracking
+      if (this.state !== 'idle') return;
+
+      getNDC(e);
+      AUDIO.resume();
+
+      const cam = this.el.sceneEl.camera;
+      if (!cam || !this.$anchor) return;
+
+      this.raycaster.setFromCamera(this.mouseNDC, cam);
+
+      const anchorW = new THREE.Vector3();
+      this.$anchor.object3D.getWorldPosition(anchorW);
+
+      const normal = new THREE.Vector3(0, 0.25, 0.96).normalize();
+      this.dragPlane.setFromNormalAndCoplanarPoint(normal, anchorW);
+
+      const hitPt = new THREE.Vector3();
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, hitPt)) {
+        this.isPointerDragging = true;
+        this.state = 'grabbed';
+        this.dragWithPointer(hitPt);
+      }
+    };
+
+    const onMove = (e) => {
+      if (!this.isPointerDragging || this.state !== 'grabbed') return;
+      if (e.touches) e.preventDefault();
+
+      getNDC(e);
+      const cam = this.el.sceneEl.camera;
+      if (!cam) return;
+
+      this.raycaster.setFromCamera(this.mouseNDC, cam);
+      const hitPt = new THREE.Vector3();
+      if (this.raycaster.ray.intersectPlane(this.dragPlane, hitPt)) {
+        this.dragWithPointer(hitPt);
+      }
+    };
+
+    const onUp = () => {
+      if (this.isPointerDragging && this.state === 'grabbed') {
+        this.isPointerDragging = false;
+        this.fire();
+      }
+    };
+
+    window.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup',   onUp);
+
+    window.addEventListener('touchstart', onDown, { passive: false });
+    window.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend',   onUp);
+  },
+
+  dragWithPointer(worldPt) {
+    this.$anchor.object3D.getWorldPosition(this.V.anchor);
+    this.V.pull.copy(worldPt).sub(this.V.anchor);
+
+    if (this.V.pull.z > 0.05) this.V.pull.z = 0;
+
+    const raw  = this.V.pull.length();
+    const dist = Math.min(raw, CFG.MAX_PULL);
+    if (dist < 0.005) return;
+
+    this.V.pull.normalize().multiplyScalar(dist);
+    const np = this.V.anchor.clone().add(this.V.pull);
+
+    this.$ballContainer.setAttribute('position', { x: np.x, y: np.y, z: np.z });
+    this.updateBands(np, dist);
+    this.updateTrajectory(np, dist);
+
+    AUDIO.playStretch(dist / CFG.MAX_PULL);
   },
 
   tick(t, dt) {
@@ -231,8 +349,13 @@ AFRAME.registerComponent('angry-birds-game', {
         break;
 
       case 'grabbed':
-        if (!pinching) this.fire();
-        else if (this.activeHnd) this.drag();
+        if (this.isPointerDragging) {
+          // Pointer drag handled directly by pointermove
+        } else if (!pinching) {
+          this.fire();
+        } else if (this.activeHnd) {
+          this.drag();
+        }
         break;
 
       case 'flying':

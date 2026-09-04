@@ -17,19 +17,19 @@
   <div class="particles" id="particles-container"></div>
 
   <div class="game-title-wrap">
-    <p class="game-subtitle">WebXR · Hand Tracking · Meta Quest 3S</p>
+    <p class="game-subtitle">Cross-Platform 3D · Meta Quest VR · Mobile · PC</p>
     <h1 class="game-title">XR SLINGSHOT</h1>
     <p class="game-tagline">Angry Birds Island · Realistic 3D World</p>
   </div>
 
   <div class="glass-card">
-    <p class="instructions-title">How to Play</p>
+    <p class="instructions-title">Choose Your Device & Play</p>
     <ul class="instructions-list">
-      <li><span class="step-badge">1</span><span>Enable <strong>Hand Tracking</strong> in Quest Settings → Hands & Controllers.</span></li>
-      <li><span class="step-badge">2</span><span>Tap <strong>Enter VR</strong> below and put on your headset.</span></li>
-      <li><span class="step-badge">3</span><span>Reach out and <strong>pinch</strong> the 3D Angry Bird in the slingshot.</span></li>
-      <li><span class="step-badge">4</span><span><strong>Pull back</strong> — watch the yellow arc guide appear — then <strong>release</strong>!</span></li>
-      <li><span class="step-badge">5</span><span>Knock down the <strong>Bad Piggies</strong> 🐷 & <strong>TNT Barrels</strong> 💣!</span></li>
+      <li><span class="step-badge">1</span><span>Select your device mode below: <strong>Meta Quest VR</strong>, <strong>Mobile Phone</strong>, or <strong>Laptop / PC</strong>.</span></li>
+      <li><span class="step-badge">2</span><span><strong>VR</strong>: Pinch Angry Bird with hands. <strong>Mobile/PC</strong>: Touch or click & drag Angry Bird backward.</span></li>
+      <li><span class="step-badge">3</span><span>Adjust your angle — watch the <strong>yellow trajectory guide arc</strong> appear!</span></li>
+      <li><span class="step-badge">4</span><span><strong>Release</strong> your grip/touch/click to launch your bird!</span></li>
+      <li><span class="step-badge">5</span><span>Destroy the <strong>Bad Piggies</strong> 🐷 & ignite <strong>TNT Barrels</strong> 💣!</span></li>
     </ul>
   </div>
 
@@ -40,10 +40,33 @@
     <div class="ball-chip"><span class="ball-dot" style="background:#991b1b;color:#991b1b;"></span><span>🟤 Terence</span></div>
   </div>
 
-  <button id="btn-enter-vr" class="btn-enter-vr">
-    <span class="btn-icon">🥽</span> Enter VR
-  </button>
-  <p id="vr-not-supported">⚠️ WebXR not supported. Open this page in the Meta Quest Browser.</p>
+  <div class="mode-buttons-group">
+    <button id="btn-enter-vr" class="btn-mode btn-vr">
+      <span class="btn-icon">🥽</span> Play in VR (Meta Quest)
+    </button>
+    <button id="btn-play-mobile" class="btn-mode btn-mobile">
+      <span class="btn-icon">📱</span> Play on Mobile
+    </button>
+    <button id="btn-play-desktop" class="btn-mode btn-desktop">
+      <span class="btn-icon">💻</span> Play on Laptop / PC
+    </button>
+  </div>
+
+  <p id="vr-not-supported">ℹ️ WebXR VR is active in Meta Quest Browser. Non-VR Mobile & Desktop modes work in any browser!</p>
+</div>
+
+<!-- ============================================================
+     NON-VR IN-GAME OVERLAY HUD
+     ============================================================ -->
+<div id="nonvr-overlay">
+  <div class="overlay-top-bar">
+    <div id="mode-badge" class="mode-badge">📱 Mobile Mode</div>
+    <div class="bar-actions">
+      <button id="btn-reset-lvl" class="overlay-btn">🔄 Reset</button>
+      <button id="btn-main-menu" class="overlay-btn">🏠 Menu</button>
+    </div>
+  </div>
+  <div id="touch-drag-hint" class="drag-hint">👇 Touch & Drag bird back to pull slingshot</div>
 </div>
 
 
