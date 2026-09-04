@@ -197,9 +197,10 @@ AFRAME.registerComponent('angry-birds-game', {
     const mainCam = document.getElementById('main-camera');
 
     if (mode === 'mobile' || mode === 'desktop') {
-      // Position camera so the 3D Slingshot handle, Angry Bird, elastic bands, and pig fortress are all prominently visible
-      if (camRig) camRig.setAttribute('position', '-0.20 1.48 1.15');
-      if (mainCam) mainCam.setAttribute('rotation', '-14 0 0');
+      // Position camera higher (Y=1.70, Z=0.85) and tilted downward (-18deg)
+      // This lowers the 3D slingshot into the bottom portion of the screen, giving an unblocked view over the top of the slingshot onto the target boxes!
+      if (camRig) camRig.setAttribute('position', '-0.20 1.70 0.85');
+      if (mainCam) mainCam.setAttribute('rotation', '-18 0 0');
     } else {
       if (camRig) camRig.setAttribute('position', '0 0 0');
       if (mainCam) mainCam.setAttribute('rotation', '0 0 0');
@@ -269,14 +270,21 @@ AFRAME.registerComponent('angry-birds-game', {
         this.restartLevel();
       }
 
-      const camRig = document.getElementById('camera-rig');
-      if (camRig && (this.mode === 'mobile' || this.mode === 'desktop')) {
+      const camRig  = document.getElementById('camera-rig');
+      const mainCam = document.getElementById('main-camera');
+      if (camRig && mainCam && (this.mode === 'mobile' || this.mode === 'desktop')) {
         if (key === 'a' || key === 'arrowleft') {
-          camRig.setAttribute('position', '-0.85 1.48 1.15');
+          camRig.setAttribute('position', '-0.80 1.70 0.85');
+          mainCam.setAttribute('rotation', '-18 12 0');
         } else if (key === 'd' || key === 'arrowright') {
-          camRig.setAttribute('position', '0.45 1.48 1.15');
+          camRig.setAttribute('position', '0.40 1.70 0.85');
+          mainCam.setAttribute('rotation', '-18 -12 0');
+        } else if (key === 'w' || key === 'arrowup') {
+          camRig.setAttribute('position', '-0.20 1.95 0.70');
+          mainCam.setAttribute('rotation', '-24 0 0');
         } else if (key === 's' || key === 'arrowdown') {
-          camRig.setAttribute('position', '-0.20 1.48 1.15');
+          camRig.setAttribute('position', '-0.20 1.70 0.85');
+          mainCam.setAttribute('rotation', '-18 0 0');
         }
       }
     });
