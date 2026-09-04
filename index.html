@@ -60,13 +60,26 @@
      ============================================================ -->
 <div id="nonvr-overlay">
   <div class="overlay-top-bar">
-    <div id="mode-badge" class="mode-badge">📱 Mobile Mode</div>
+    <div id="mode-badge" class="mode-badge">💻 Laptop Mode</div>
+
+    <div class="quick-bird-select" id="quick-bird-select">
+      <button class="bird-select-btn active" data-bird="0" title="Shortcut: Press 1">🔴 Red</button>
+      <button class="bird-select-btn" data-bird="1" title="Shortcut: Press 2">🟡 Chuck</button>
+      <button class="bird-select-btn" data-bird="2" title="Shortcut: Press 3">💣 Bomb</button>
+      <button class="bird-select-btn" data-bird="3" title="Shortcut: Press 4">🟤 Terence</button>
+    </div>
+
     <div class="bar-actions">
       <button id="btn-reset-lvl" class="overlay-btn">🔄 Reset</button>
       <button id="btn-main-menu" class="overlay-btn">🏠 Menu</button>
     </div>
   </div>
-  <div id="touch-drag-hint" class="drag-hint">👇 Touch & Drag bird back to pull slingshot</div>
+
+  <div id="desktop-hotkey-bar" class="desktop-hotkey-bar">
+    ⌨️ <strong>Laptop Controls:</strong> [Click & Drag Down] Pull Slingshot · [Space] Fire · [1-4] Select Bird · [A / D] Orbit Camera
+  </div>
+
+  <div id="touch-drag-hint" class="drag-hint">👇 Click & Drag mouse down on screen to pull slingshot back & aim</div>
 </div>
 
 

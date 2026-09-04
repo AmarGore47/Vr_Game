@@ -172,6 +172,7 @@ AFRAME.registerComponent('angry-birds-game', {
 
     this.attachHandEvents();
     this.attachPointerEvents();
+    this.attachKeyboardEvents();
     this.buildCurrentBirdModel();
     this.snapToAnchor();
     this.spawnStructure();
@@ -196,8 +197,9 @@ AFRAME.registerComponent('angry-birds-game', {
     const mainCam = document.getElementById('main-camera');
 
     if (mode === 'mobile' || mode === 'desktop') {
-      if (camRig) camRig.setAttribute('position', '-0.20 1.35 0.35');
-      if (mainCam) mainCam.setAttribute('rotation', '-8 0 0');
+      // Position camera so the 3D Slingshot handle, Angry Bird, elastic bands, and pig fortress are all prominently visible
+      if (camRig) camRig.setAttribute('position', '-0.20 1.48 1.15');
+      if (mainCam) mainCam.setAttribute('rotation', '-14 0 0');
     } else {
       if (camRig) camRig.setAttribute('position', '0 0 0');
       if (mainCam) mainCam.setAttribute('rotation', '0 0 0');
@@ -210,6 +212,74 @@ AFRAME.registerComponent('angry-birds-game', {
     this.snapToAnchor();
     this.updateHUD();
     this.state = 'idle';
+  },
+
+  switchBird(idx) {
+    this.ballIdx = idx % BIRD_TYPES.length;
+    this.buildCurrentBirdModel();
+    this.snapToAnchor();
+    this.updateHUD();
+
+    const btns = document.querySelectorAll('.bird-select-btn');
+    btns.forEach((b, i) => {
+      if (i === this.ballIdx) b.classList.add('active');
+      else b.classList.remove('active');
+    });
+
+    AUDIO.playWoodHit();
+  },
+
+  autoLaunch() {
+    if (this.state !== 'idle') return;
+    this.state = 'grabbed';
+    this.$anchor.object3D.getWorldPosition(this.V.anchor);
+
+    const pullVec = new THREE.Vector3(0, -0.18, 0.42);
+    const dist    = 0.42;
+    const np      = this.V.anchor.clone().add(pullVec);
+
+    this.$ballContainer.setAttribute('position', { x: np.x, y: np.y, z: np.z });
+    this.updateBands(np, dist);
+    this.updateTrajectory(np, dist);
+    AUDIO.playStretch(0.8);
+
+    setTimeout(() => {
+      if (this.state === 'grabbed') {
+        this.fire();
+      }
+    }, 220);
+  },
+
+  attachKeyboardEvents() {
+    window.addEventListener('keydown', (e) => {
+      if (this.mode === 'vr') return;
+      const key = e.key.toLowerCase();
+
+      if (key === '1') this.switchBird(0);
+      if (key === '2') this.switchBird(1);
+      if (key === '3') this.switchBird(2);
+      if (key === '4') this.switchBird(3);
+
+      if ((e.code === 'Space' || key === 'enter') && this.state === 'idle') {
+        e.preventDefault();
+        this.autoLaunch();
+      }
+
+      if (key === 'r') {
+        this.restartLevel();
+      }
+
+      const camRig = document.getElementById('camera-rig');
+      if (camRig && (this.mode === 'mobile' || this.mode === 'desktop')) {
+        if (key === 'a' || key === 'arrowleft') {
+          camRig.setAttribute('position', '-0.85 1.48 1.15');
+        } else if (key === 'd' || key === 'arrowright') {
+          camRig.setAttribute('position', '0.45 1.48 1.15');
+        } else if (key === 's' || key === 'arrowdown') {
+          camRig.setAttribute('position', '-0.20 1.48 1.15');
+        }
+      }
+    });
   },
 
   attachHandEvents() {

@@ -113,15 +113,29 @@ function startNonVRMode(mode) {
     modeBadge.textContent = mode === 'mobile' ? '📱 Mobile Mode' : '💻 Laptop / PC Mode';
   }
 
+  const hotkeyBar = document.getElementById('desktop-hotkey-bar');
+  if (hotkeyBar) {
+    hotkeyBar.style.display = mode === 'desktop' ? 'block' : 'none';
+  }
+
   if (touchHint) {
     touchHint.textContent = mode === 'mobile'
       ? '👇 Touch & Drag bird back to aim slingshot'
-      : '🖱️ Click & Drag bird back with mouse to aim';
+      : '🖱️ Click & Drag mouse down on screen to pull slingshot back & aim';
   }
 }
 
 playMobileBtn?.addEventListener('click', () => startNonVRMode('mobile'));
 playDesktopBtn?.addEventListener('click', () => startNonVRMode('desktop'));
+
+/* ── Quick Bird Selection Buttons ─────────────────────────────────────────── */
+document.querySelectorAll('.bird-select-btn').forEach(btn => {
+  btn.addEventListener('click', (e) => {
+    const idx = parseInt(e.currentTarget.getAttribute('data-bird'), 10);
+    const gameComp = getGameComponent();
+    if (gameComp) gameComp.switchBird(idx);
+  });
+});
 
 /* ── Overlay Action Buttons ────────────────────────────────────────────────── */
 resetLvlBtn?.addEventListener('click', () => {
