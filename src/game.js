@@ -231,56 +231,38 @@ AFRAME.registerComponent('angry-birds-game', {
   },
 
   attachPointerEvents() {
-    this.raycaster = new THREE.Raycaster();
-    this.mouseNDC  = new THREE.Vector2();
-    this.dragPlane = new THREE.Plane();
+    this.isPointerDragging = false;
+    this.pointerStart = { x: 0, y: 0 };
 
-    const getNDC = (e) => {
+    const getPos = (e) => {
       const x = e.touches ? e.touches[0].clientX : e.clientX;
       const y = e.touches ? e.touches[0].clientY : e.clientY;
-      this.mouseNDC.x = (x / window.innerWidth) * 2 - 1;
-      this.mouseNDC.y = -(y / window.innerHeight) * 2 + 1;
+      return { x, y };
     };
 
     const onDown = (e) => {
       if (this.mode === 'vr') return; // VR mode uses hand tracking
       if (this.state !== 'idle') return;
+      if (e.target && (e.target.closest('#nonvr-overlay') || e.target.closest('#orientation-screen'))) return;
 
-      getNDC(e);
+      const p = getPos(e);
+      this.pointerStart.x = p.x;
+      this.pointerStart.y = p.y;
+
       AUDIO.resume();
-
-      const cam = this.el.sceneEl.camera;
-      if (!cam || !this.$anchor) return;
-
-      this.raycaster.setFromCamera(this.mouseNDC, cam);
-
-      const anchorW = new THREE.Vector3();
-      this.$anchor.object3D.getWorldPosition(anchorW);
-
-      const normal = new THREE.Vector3(0, 0.25, 0.96).normalize();
-      this.dragPlane.setFromNormalAndCoplanarPoint(normal, anchorW);
-
-      const hitPt = new THREE.Vector3();
-      if (this.raycaster.ray.intersectPlane(this.dragPlane, hitPt)) {
-        this.isPointerDragging = true;
-        this.state = 'grabbed';
-        this.dragWithPointer(hitPt);
-      }
+      this.isPointerDragging = true;
+      this.state = 'grabbed';
     };
 
     const onMove = (e) => {
       if (!this.isPointerDragging || this.state !== 'grabbed') return;
       if (e.touches) e.preventDefault();
 
-      getNDC(e);
-      const cam = this.el.sceneEl.camera;
-      if (!cam) return;
+      const p = getPos(e);
+      const dx = p.x - this.pointerStart.x;
+      const dy = p.y - this.pointerStart.y;
 
-      this.raycaster.setFromCamera(this.mouseNDC, cam);
-      const hitPt = new THREE.Vector3();
-      if (this.raycaster.ray.intersectPlane(this.dragPlane, hitPt)) {
-        this.dragWithPointer(hitPt);
-      }
+      this.dragWithScreenDelta(dx, dy);
     };
 
     const onUp = () => {
@@ -299,18 +281,29 @@ AFRAME.registerComponent('angry-birds-game', {
     window.addEventListener('touchend',   onUp);
   },
 
-  dragWithPointer(worldPt) {
+  dragWithScreenDelta(dx, dy) {
+    if (!this.$anchor || !this.$ballContainer) return;
     this.$anchor.object3D.getWorldPosition(this.V.anchor);
-    this.V.pull.copy(worldPt).sub(this.V.anchor);
 
-    if (this.V.pull.z > 0.05) this.V.pull.z = 0;
+    // Pulling down on screen (dy > 0) pulls the ball backward towards camera (+Z) and downward (-Y)
+    // Pulling left/right on screen (dx) shifts pull left/right (X)
+    const pullZ = Math.max(0, dy * 0.0025);  // metres backward
+    const pullY = -Math.max(0, dy * 0.0016); // metres downward
+    const pullX = dx * 0.0020;               // metres left/right
 
-    const raw  = this.V.pull.length();
-    const dist = Math.min(raw, CFG.MAX_PULL);
-    if (dist < 0.005) return;
+    const pullVec = new THREE.Vector3(pullX, pullY, pullZ);
+    const rawDist = pullVec.length();
+    const dist    = Math.min(rawDist, CFG.MAX_PULL);
 
-    this.V.pull.normalize().multiplyScalar(dist);
-    const np = this.V.anchor.clone().add(this.V.pull);
+    if (dist < 0.004) {
+      this.snapToAnchor();
+      this.resetBands();
+      this.clearTrajectory();
+      return;
+    }
+
+    pullVec.normalize().multiplyScalar(dist);
+    const np = this.V.anchor.clone().add(pullVec);
 
     this.$ballContainer.setAttribute('position', { x: np.x, y: np.y, z: np.z });
     this.updateBands(np, dist);
